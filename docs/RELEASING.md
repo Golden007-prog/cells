@@ -68,12 +68,39 @@ published filename to be overwritten; use a new version for a changed upload.
 
 ## TestPyPI rehearsal
 
-After the public repository and Trusted Publisher are configured:
+The GitHub repository may remain private during this rehearsal. TestPyPI uploads
+are public: the package source and metadata will be downloadable there, even
+while the GitHub repository remains private. TestPyPI accounts and publisher
+registrations are separate from production PyPI.
+
+Sign in at <https://test.pypi.org/manage/account/publishing/> and add a pending
+GitHub publisher with these exact values:
+
+| Field | Value |
+| --- | --- |
+| PyPI project name | `terminal-cells` |
+| Owner | `kborer` |
+| Repository name | `cells` |
+| Workflow name | `publish.yml` |
+| Environment name | `testpypi` |
+
+The GitHub `testpypi` environment is configured. Branch/tag protections remain
+pending while this personal repository is private under its current plan.
+A pending publisher does not reserve the package name; only the first successful
+upload creates the project. Do not register the production publisher as a
+substitute for the TestPyPI registration.
+
+After the TestPyPI Trusted Publisher is configured:
 
 1. Open Actions → Publish → Run workflow.
 2. Choose the intended branch or tag and target **testpypi** (the default).
 3. The workflow runs the Ubuntu/macOS test matrix and validates its artifacts
    before uploading those same artifacts to TestPyPI.
+   It then downloads the exact published version into a fresh virtual environment
+   using only TestPyPI, checks `cells --version`, and renders a seeded snapshot
+   from outside the source checkout. If this check fails after upload, inspect
+   the failure before rerunning: the upload may already have succeeded, and its
+   files cannot be overwritten.
 4. Test the result in a fresh environment:
 
 ```sh

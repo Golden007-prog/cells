@@ -18,6 +18,8 @@ jobs:
     name: Validate release selection
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -26,6 +28,7 @@ jobs:
         with:
           python-version: "3.14"
       - name: Production releases require a matching version tag
+        id: version
         env:
           RELEASE_TARGET: ${{ inputs.target }}
         run: |
@@ -38,6 +41,8 @@ jobs:
           if target == 'pypi' and os.environ['GITHUB_REF'] != f'refs/tags/v{cells.__version__}':
               raise SystemExit(f'Production publishing requires tag v{cells.__version__}')
           print(f'Preparing {cells.__version__} for {target}')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'version={cells.__version__}\n')
           PY
 
   verify:
@@ -48,7 +53,7 @@ jobs:
 
   publish:
     name: Upload verified distributions
-    needs: verify
+    needs: [release-ref, verify]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:
@@ -85,3 +90,39 @@ jobs:
         with:
           packages-dir: dist/
           repository-url: ${{ inputs.target == 'testpypi' && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+      - name: Install the published wheel in a fresh environment
+        env:
+          RELEASE_VERSION: ${{ needs.release-ref.outputs.version }}
+          INDEX_URL: ${{ inputs.target == 'testpypi' && 'https://test.pypi.org/simple/' || 'https://pypi.org/simple/' }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+          with tempfile.TemporaryDirectory() as directory:
+              root = Path(directory)
+              environment = root / 'venv'
+              subprocess.run([sys.executable, '-m', 'venv', str(environment)], check=True)
+              python = environment / 'bin/python'
+              version = os.environ['RELEASE_VERSION']
+              subprocess.run([
+                  str(python), '-m', 'pip', 'install', '--no-cache-dir', '--no-deps',
+                  '--only-binary=:all:', '--index-url', os.environ['INDEX_URL'],
+                  f'terminal-cells=={version}',
+              ], cwd=root, check=True)
+              command = str(environment / 'bin/cells')
+              result = subprocess.check_output([command, '--version'], cwd=root, text=True)
+              if result.strip() != f'cells {version}':
+                  raise SystemExit(f'Unexpected installed version: {result!r}')
+              snapshot = subprocess.check_output([
+                  command, '--snapshot', '--seed', '42', '--size', '80x24',
+              ], cwd=root, text=True)
+              if len(snapshot.splitlines()) != 24 or not snapshot.strip():
+                  raise SystemExit('Published installation produced an invalid snapshot')
+              print(f'Installed and exercised terminal-cells {version} from the selected index')
+          PY
