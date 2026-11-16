@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "terminal-cells"
+dynamic = ["version"]
+description = "A living microscope slide in your terminal"
+readme = "docs/PYPI.md"
+requires-python = ">=3.10"
+license = "0BSD"
+license-files = ["LICENSE"]
+authors = [{name = "cells contributors"}]
+keywords = ["terminal", "screensaver", "microscopy", "biology", "ascii"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console :: Curses",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Games/Entertainment :: Simulation",
+]
+
+[project.scripts]
+cells = "terminal_cells.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/kborer/cells"
+Repository = "https://github.com/kborer/cells"
+Issues = "https://github.com/kborer/cells/issues"
+Documentation = "https://github.com/kborer/cells#readme"
+Changelog = "https://github.com/kborer/cells/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+py-modules = ["cells"]
+packages = ["terminal_cells"]
+
+[tool.setuptools.data-files]
+"share/man/man1" = ["docs/cells.1"]
+
+[tool.setuptools.dynamic]
+version = {attr = "terminal_cells.__version__"}
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/test_cells.py" = ["E402"]

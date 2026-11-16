@@ -1,0 +1,8 @@
+# Build, release validation, and optional demo generation; no runtime dependencies.
+build>=1.2
+setuptools>=77
+wheel>=0.45
+twine>=6
+Pillow>=11
+ruff==0.17.4
+hypothesis>=6.100

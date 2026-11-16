@@ -1,0 +1,24 @@
+name: Bug report
+description: Report an animation, simulation, installation, or terminal problem.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe what you expected and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include cells --diagnostics output, your terminal application, and whether it has a light or dark background.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Include the command, seed, approximate simulation time, and any resize or key input. A screenshot or recording is useful for visual issues.
+    validations:
+      required: true

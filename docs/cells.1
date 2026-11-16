@@ -1,0 +1,107 @@
+.TH CELLS 1 "" "cells 0.1.0" "User Commands"
+.SH NAME
+cells \- a living microscope slide in your terminal
+.SH SYNOPSIS
+.B cells
+.RI [ options ]
+.SH DESCRIPTION
+Animated immune cells, microbes, fungi, and bacteriophages. Sizes and
+timings are illustrative. Requires Python 3.10 or later; interactive
+mode requires curses on Linux or macOS (Windows users can use WSL).
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+show this help message and exit
+.TP
+.B \-\-seed SEED
+repeat a slide within the same program version (normally random)
+.TP
+.B \-\-scene SCENE
+community preset
+Choices: mixed, blood, microbial.
+.TP
+.B \-\-density 0.25..3
+population multiplier
+.TP
+.B \-\-speed 0.125..8
+simulation speed (normally 1; calm: 0.5)
+.TP
+.B \-\-fps 1..60
+maximum frame rate (normally 30; calm: 10)
+.TP
+.B \-\-calm
+slower motion, lower FPS, and no micropipette; explicit speed/fps win
+.TP
+.B \-\-theme THEME
+color palette; light suits white backgrounds
+Choices: slide, amber, light, mono.
+.TP
+.B \-\-color COLOR
+auto respects nonempty NO_COLOR; always overrides it
+Choices: auto, always, never.
+.TP
+.B \-\-unicode UNICODE
+auto uses Unicode for UTF encodings
+Choices: auto, always, never.
+.TP
+.B \-\-ascii
+alias for \-\-unicode never
+.TP
+.B \-\-stats
+show population and lifecycle statistics at startup
+.TP
+.B \-\-observe
+caption lifecycle stages and recent events
+.TP
+.B \-\-no\-events
+disable rare visitors and microscope events
+.TP
+.B \-\-screensaver
+exit on any key
+.TP
+.B \-\-interactive
+enable microscope tools; mouse or keyboard targeting
+.TP
+.B \-\-duration SECONDS
+exit after this many wall\-clock seconds (normally unlimited)
+.TP
+.B \-\-snapshot
+print one ASCII frame without terminal escapes and exit
+.TP
+.B \-\-size COLSxROWS
+snapshot dimensions, up to 500x200
+.TP
+.B \-\-at SECONDS
+simulation time for snapshot
+.TP
+.B \-\-diagnostics
+print terminal capability information as JSON and exit
+.TP
+.B \-\-version
+show program's version number and exit
+.SH CONTROLS
+q/Escape quits; Space pauses; +/\- changes speed; r resets the slide;
+s toggles statistics; ? toggles help; j/k or arrows scroll help;
+Ctrl-L redraws. Screensaver mode exits on any key except resize.
+With interactive mode: 1 Inspect, 2 Lyse, 3 Feed, 4 Stir; left-click or
+Enter applies. Arrows/hjkl aim; Tab selects and follows an entity.
+.SH ENVIRONMENT
+.TP
+.B NO_COLOR
+A nonempty value disables automatic color. Explicit \-\-color always overrides it.
+.TP
+.B TERM
+Must identify the actual terminal for interactive mode.
+.SH EXAMPLES
+.nf
+cells \-\-scene microbial \-\-calm
+cells \-\-theme light \-\-observe
+cells \-\-snapshot \-\-seed 42 \-\-size 100x32 \-\-at 30
+.fi
+.SH NOTES
+Snapshots are ASCII without escape codes. Duration is wall time;
+snapshot time is simulated time. A seed is reproducible within the
+same version, size, and update/resize history. Normal quits, SIGINT,
+and SIGTERM restore terminal settings. SIGKILL cannot run cleanup.
+.SH EXIT STATUS
+0 on success; 1 on terminal failure; 2 for invalid usage or missing curses.
