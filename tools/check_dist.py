@@ -137,6 +137,17 @@ def extract_source(path: Path, destination: Path) -> Path:
     return root
 
 
+def terminal_modes(fd: int) -> list:
+    """Compare settings, excluding the kernel's transient pending-input state."""
+    import termios
+
+    attributes = list(termios.tcgetattr(fd))
+    # BSD/macOS can set PENDIN when curses restores canonical input. This
+    # marks queued input for reprocessing, rather than a changed terminal mode.
+    attributes[3] &= ~getattr(termios, "PENDIN", 0)
+    return attributes
+
+
 def terminal_smoke(command: Path, cwd: Path, env, interactive: bool = False) -> None:
     import fcntl
     import pty
@@ -147,7 +158,7 @@ def terminal_smoke(command: Path, cwd: Path, env, interactive: bool = False) -> 
     master, slave = pty.openpty()
     process = None
     try:
-        before = termios.tcgetattr(slave)
+        before = terminal_modes(slave)
         fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
         process = subprocess.Popen(
             [
@@ -176,7 +187,7 @@ def terminal_smoke(command: Path, cwd: Path, env, interactive: bool = False) -> 
             raise RuntimeError(
                 f"Installed interactive command failed: {output.decode(errors='replace')}"
             )
-        if termios.tcgetattr(slave) != before:
+        if terminal_modes(slave) != before:
             raise RuntimeError("Installed command did not restore terminal settings")
     finally:
         if process is not None and process.poll() is None:

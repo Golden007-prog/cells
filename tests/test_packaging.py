@@ -3,11 +3,31 @@
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
-from tools.check_dist import check_checkout_payload
+from tools.check_dist import check_checkout_payload, terminal_modes
 
 
 class PackagingTests(unittest.TestCase):
+    def test_terminal_modes_ignore_pending_input_but_detect_changed_echo(self):
+        try:
+            import termios
+        except ImportError:
+            self.skipTest("requires POSIX terminal settings")
+        baseline = [0, 0, 0, termios.ECHO | termios.ICANON, 0, 0, []]
+        pending = list(baseline)
+        pending[3] |= 0x20000000
+        with (
+            patch.object(termios, "PENDIN", 0x20000000, create=True),
+            patch.object(termios, "tcgetattr", return_value=pending),
+        ):
+            self.assertEqual(terminal_modes(0), baseline)
+            self.assertNotEqual(pending, baseline, "normalization must not mutate the saved state")
+            pending[3] &= ~termios.ECHO
+            self.assertNotEqual(
+                terminal_modes(0), baseline, "echo restoration must still be checked"
+            )
+
     def test_release_payload_must_match_all_checkout_modules(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from tools.check_dist import terminal_modes
 from cells import (
     BACTERIA_INKS,
     BACTERIUM_PADDING,
@@ -1337,7 +1338,7 @@ class TerminalTests(unittest.TestCase):
         import termios
 
         master, slave = pty.openpty()
-        before = termios.tcgetattr(slave)
+        before = terminal_modes(slave)
         fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
         env = os.environ | {"TERM": "xterm-256color", "LANG": "C.UTF-8"}
         process = subprocess.Popen(
@@ -1378,7 +1379,7 @@ class TerminalTests(unittest.TestCase):
                 output.extend(os.read(master, 65536))
             self.assertEqual(process.returncode, 0, output.decode(errors="replace"))
             self.assertNotIn(b"Traceback", output)
-            self.assertEqual(termios.tcgetattr(slave), before, "terminal modes must be restored")
+            self.assertEqual(terminal_modes(slave), before, "terminal modes must be restored")
             self.assertIn(b"\x1b[?1049l", output, "must leave the alternate screen")
             return time.monotonic() - start, bytes(output)
         finally:
