@@ -112,6 +112,20 @@ python3 -m venv /tmp/cells-testpypi
 
 ## Publish to PyPI
 
+The TestPyPI rehearsal for version 0.1.0 passed, including all ten Linux/macOS
+test jobs, archive validation, and installation of the uploaded wheel:
+<https://github.com/kborer/cells/actions/runs/43959940186>.
+The GitHub repository remains private. Both publishing environments exist;
+the production `pypi` environment allows deployment only from `v*` tags.
+This environment restriction is separate from protection against modifying tags.
+
+For the initial production release, sign in at
+<https://pypi.org/manage/account/publishing/> and register the same pending
+GitHub publisher shown above, with environment **`pypi`** instead of `testpypi`.
+The project name remains `terminal-cells`, owner `kborer`, repository `cells`,
+and workflow filename `publish.yml`. Production and test registrations do not
+share authorization.
+
 After reviewing the candidate and successful CI results, set the changelog's
 release date and create a tag exactly matching the version, for example
 `v0.1.0`. Push that tag. Manually run **Publish** on that tag with target **pypi**.

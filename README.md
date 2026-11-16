@@ -32,9 +32,8 @@ cells
 ```
 
 The distribution is named **terminal-cells**; its executable is **cells**.
-Version 0.1.0 is prepared for release but has not yet been published to PyPI.
-After publication, `pipx install terminal-cells` will install the published
-package. You can also use `python3 -m pip install .` inside an active virtual
+Install a published release with `pipx install terminal-cells`.
+You can also use `python3 -m pip install .` inside an active virtual
 environment. See [the release guide](docs/RELEASING.md) for publishing and
 future Ubuntu packaging.
 

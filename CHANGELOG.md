@@ -2,14 +2,14 @@
 
 ## Unreleased
 
+## 0.1.0 — 2026-11-16
+
+First release. Published to TestPyPI and prepared for production PyPI.
+
 - Let immune cells crawl against ordinary slide flow and turn away from screen
   edges instead of accumulating at the right boundary.
 - Hide microscope-tool instructions in ambient help and space interactive tools,
   targeting controls, and the species legend into separate groups.
-
-## 0.1.0 — prepared, not yet published
-
-First public release candidate. The date will be set when this version is published.
 
 - Fix animation freezing on mouse release: receive release events from curses
   and discard them without applying a second tool action.
